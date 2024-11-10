@@ -1,0 +1,246 @@
+<!doctype html>
+<html>
+<head>
+    <title>Add Note</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://fonts.googleapis.com/css2?family=Rubik:wght@300&display=swap" rel="stylesheet">
+    <style>
+        /* General styling */
+        html, body {
+            margin: 0;
+            padding: 0;
+            font-family: 'Rubik', sans-serif;
+            background: radial-gradient(circle, rgba(238,174,202,1) 0%, rgba(148,187,233,1) 100%);
+            color: #432000;
+            user-select: none;
+        }
+
+        /* Container */
+        .container {
+            display: flex;
+            flex-direction: column;
+            max-width: 320px;
+            margin: 30px auto;
+        }
+
+        /* Counter display */
+        .counter-box {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            padding: 10px;
+            background: linear-gradient(15deg, rgba(2,0,36,1) 0%, rgba(76,240,16,1) 33%, rgba(0,212,255,1) 100%);
+            border-radius: 8px;
+            color: #432000;
+            font-size: 14px;
+            font-weight: bold;
+            box-shadow: 0px 1px 4px rgba(0, 0, 0, 0.2);
+            text-align: center;
+        }
+
+        /* Form elements */
+        input, button {
+            color: #432000;
+            font-family: 'Rubik', sans-serif;
+            font-size: 20px;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 10px 0;
+        }
+
+        input {
+            background-color: #DCE1EB;
+            text-align: center;
+            border: none;
+        }
+
+        button {
+            color: #FDFDFD;
+            background: linear-gradient(0deg, rgba(34,193,195,1) 0%, rgba(255,199,4,1) 100%);
+            border: 2px solid #030200;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background: linear-gradient(90deg, rgba(2,0,36,1) 0%, rgba(116,121,9,1) 44%, rgba(0,212,255,1) 100%);
+        }
+
+        /* Note list and items */
+        ul {
+            list-style-type: none;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        ul li {
+            display: flex;
+            align-items: center;
+            font-size: 20px;
+            background: radial-gradient(circle, rgba(63,94,251,1) 0%, rgba(252,251,70,1) 100%);
+            padding: 15px;
+            border-radius: 8px;
+            box-shadow: 0px 1px 4px rgba(0, 0, 0, 0.2);
+            justify-content: space-between;
+        }
+
+        ul li:hover {
+            background-color: #FFECC7;
+            cursor: pointer;
+        }
+
+        .note-text {
+            flex-grow: 1;
+            margin-right: 10px;
+            padding-left: 10px;
+        }
+
+        .no-items {
+            font-style: italic;
+            color: #090808;
+            text-align: center;
+        }
+
+        /* Button styling */
+        .delete-button {
+            color: #FDFDFD;
+            background-color: #E03E2F;
+            border: none;
+            padding: 5px 10px;
+            border-radius: 8px;
+            font-size: 16px;
+            cursor: pointer;
+        }
+
+        .delete-button:hover {
+            background: linear-gradient(90deg, rgba(2,0,36,1) 0%, rgba(240,16,16,1) 68%, rgba(0,212,255,1) 100%);
+        }
+
+        .completed .note-text {
+            text-decoration: line-through;
+            color: #999;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Counter Display -->
+        <div class="counter-box" id="counter-box">
+            Total: 0<br>
+            Completed: 0 (0%)
+        </div>
+
+        <!-- Image & Input -->
+        <img src="assets/babyduck.png" alt="Baby Duck">
+        <input type="text" id="input-field" placeholder="Enter note">
+        <button id="add-button">Add note</button>
+
+        <!-- Note List -->
+        <ul id="note-list">
+            <li class="no-items">No items here...</li>
+        </ul>
+    </div>
+
+    <script>
+        // DOM Elements
+        const inputFieldEl = document.getElementById("input-field");
+        const addButtonEl = document.getElementById("add-button");
+        const noteListEl = document.getElementById("note-list");
+        const counterBoxEl = document.getElementById("counter-box");
+
+        // Variables to track note counts
+        let totalNotes = 0;
+        let completedNotes = 0;
+
+        // Initialize display
+        displayNoItemsMessage();
+
+        // Event Listeners
+        addButtonEl.addEventListener("click", addNote);
+
+        document.addEventListener("keydown", function(event) {
+            if (event.key === "Enter") {
+                addNote();
+            }
+        });
+
+        // Functions
+
+        function addNote() {
+            const noteText = inputFieldEl.value.trim();
+            if (!noteText) {
+                alert("Please enter a note.");
+                return;
+            }
+            createNoteElement(noteText);
+            clearInputField();
+        }
+
+        function clearInputField() {
+            inputFieldEl.value = "";
+        }
+
+        function createNoteElement(noteText) {
+            // Remove "No items here..." message
+            const noItemsEl = document.querySelector(".no-items");
+            if (noItemsEl) noItemsEl.remove();
+
+            const newEl = document.createElement("li");
+            newEl.appendChild(createCompletionCheckbox(newEl));
+            newEl.appendChild(createNoteTextSpan(noteText));
+            newEl.appendChild(createDeleteButton(newEl));
+
+            noteListEl.appendChild(newEl);
+            totalNotes++;
+            updateCounter();
+        }
+
+        function createCompletionCheckbox(noteItem) {
+            const checkbox = document.createElement("input");
+            checkbox.type = "checkbox";
+            checkbox.className = "completion-checkbox";
+            checkbox.addEventListener("change", () => toggleCompletion(noteItem, checkbox.checked));
+            return checkbox;
+        }
+
+        function createNoteTextSpan(noteText) {
+            const span = document.createElement("span");
+            span.className = "note-text";
+            span.textContent = noteText;
+            return span;
+        }
+
+        function createDeleteButton(noteItem) {
+            const deleteButton = document.createElement("button");
+            deleteButton.className = "delete-button";
+            deleteButton.textContent = "Delete";
+            deleteButton.addEventListener("click", () => deleteNoteItem(noteItem));
+            return deleteButton;
+        }
+
+        function toggleCompletion(noteItem, isCompleted) {
+            noteItem.classList.toggle("completed", isCompleted);
+            completedNotes += isCompleted ? 1 : -1;
+            updateCounter();
+        }
+
+        function deleteNoteItem(noteItem) {
+            noteItem.remove();
+            totalNotes--;
+            if (noteItem.classList.contains("completed")) completedNotes--;
+            updateCounter();
+            if (totalNotes === 0) displayNoItemsMessage();
+        }
+
+        function updateCounter() {
+            const percentage = totalNotes ? Math.round((completedNotes / totalNotes) * 100) : 0;
+            counterBoxEl.innerHTML = `Total: ${totalNotes}<br>Completed: ${completedNotes} (${percentage}%)`;
+        }
+
+        function displayNoItemsMessage() {
+            noteListEl.innerHTML = "<li class='no-items'>No items here...</li>";
+        }
+    </script>
+</body>
+</html>
