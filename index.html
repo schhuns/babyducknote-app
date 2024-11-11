@@ -99,9 +99,12 @@
         }
 
         .note-text {
+            width: 200px;
             flex-grow: 1;
             margin-right: 10px;
             padding-left: 10px;
+            overflow: hidden;      /* Hide any overflow outside the box boundaries */
+            word-wrap: break-word; /* Break words to fit within the box */
         }
 
         .no-items {
