@@ -228,10 +228,12 @@
             const noteText = inputFieldEl.value.trim();
             if (!noteText) {
                 alert("Please enter a note.");
+                inputFieldEl.focus(); // Ensure the input field stays focused even after an error
                 return;
             }
             createNoteElement(noteText);
             clearInputField();
+            inputFieldEl.focus(); // Keep the input field focused
         }
 
         function clearInputField() {
